@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Submit New Ticket</h2>
+    <form method="POST" action="{{ url_for('submit_ticket') }}">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" name="title" id="title" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Ticket</button>
+        <a href="{{ url_for('user_home') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
