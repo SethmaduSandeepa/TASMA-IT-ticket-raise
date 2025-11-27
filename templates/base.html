@@ -8,7 +8,10 @@
 <body>
   <nav class="navbar navbar-dark bg-dark">
     <div class="container">
-      <a class="navbar-brand" href="/">TASMA IT help desk</a>
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <img src="https://i.ytimg.com/vi/VayjLIlCLpw/maxresdefault.jpg" alt="Logo" style="height:32px;width:32px;margin-right:10px;border-radius:50%;object-fit:cover;">
+        TASMA IT help desk
+      </a>
       {% if session.username %}
         <span class="text-light">Logged in as: {{ session.username }} ({{ session.role }})</span>
         <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">Logout</a>
