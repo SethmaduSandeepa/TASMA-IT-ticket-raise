@@ -28,8 +28,11 @@
           {% if t.pc_name %}
             <div class="mb-1"><i class="bi bi-pc-display-horizontal me-1"></i> <span class="text-info">{{ t.pc_name }}</span></div>
           {% endif %}
-          <div class="mt-auto">
-            <small class="text-muted">Created: <span class="created-time" data-utc="{{ t.created_at.isoformat() }}">Loading...</span></small>
+          <div class="mt-auto d-flex justify-content-between align-items-center">
+            <small class="text-muted">Created: {{ t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else 'Unknown' }}</small>
+            <form method="POST" action="{{ url_for('delete_ticket', ticket_id=t._id) }}" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger ms-2"><i class="bi bi-trash"></i> Delete</button>
+            </form>
           </div>
         </div>
       </div>

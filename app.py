@@ -26,11 +26,6 @@ def before_request():
     if 'username' in session and session.get('role') == 'admin':
         g.pending_count = users.count_documents({"role": "user", "status": "pending"})
 
-# ...existing code...
-
-
-# ...existing code...
-
 # Admin: View and manage pending user requests
 @app.route('/admin/requests', methods=['GET', 'POST'])
 def user_requests():
@@ -51,14 +46,19 @@ def user_requests():
 
 
 # Ensure admin exists (run once or improve with setup route)
+
+# Set or update admin password to 'tasma@18953789**'
 admin_user = users.find_one({"username": "admin"})
+new_admin_password = "tasma@18953789**"
+hashed = bcrypt.hashpw(new_admin_password.encode('utf-8'), bcrypt.gensalt())
 if not admin_user:
-    hashed = bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt())
     users.insert_one({
         "username": "admin",
         "password": hashed,
         "role": "admin"
     })
+else:
+    users.update_one({"username": "admin"}, {"$set": {"password": hashed}})
 
 @app.route('/')
 def index():
@@ -161,6 +161,32 @@ def update_ticket(ticket_id):
         {"_id": ObjectId(ticket_id)},
         {"$set": {"status": new_status, "updated_at": datetime.utcnow()}}
     )
+    return redirect(url_for('dashboard'))
+
+# Delete ticket route for users
+@app.route('/user/delete/<ticket_id>', methods=['POST'])
+def delete_ticket(ticket_id):
+    if 'username' not in session or session['role'] != 'user':
+        return redirect(url_for('login'))
+    ticket = tickets.find_one({"_id": ObjectId(ticket_id)})
+    if ticket and ticket.get('user') == session['username']:
+        tickets.delete_one({"_id": ObjectId(ticket_id)})
+        flash("Ticket deleted.")
+    else:
+        flash("You are not authorized to delete this ticket.")
+    return redirect(url_for('user_home'))
+
+# Admin delete ticket route
+@app.route('/admin/delete/<ticket_id>', methods=['POST'])
+def admin_delete_ticket(ticket_id):
+    if 'username' not in session or session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    ticket = tickets.find_one({"_id": ObjectId(ticket_id)})
+    if ticket:
+        tickets.delete_one({"_id": ObjectId(ticket_id)})
+        flash("Ticket deleted.")
+    else:
+        flash("Ticket not found.")
     return redirect(url_for('dashboard'))
 
 # Helper for ObjectId in templates
