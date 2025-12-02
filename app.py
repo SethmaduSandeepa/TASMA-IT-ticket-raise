@@ -1,10 +1,35 @@
-from flask import g
-# Add before_request to set pending_count for admin
+from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+import bcrypt
+from datetime import datetime
+from bson.objectid import ObjectId
+
+load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
+try:
+    client = MongoClient(os.getenv("MONGO_URI"), serverSelectionTimeoutMS=5000)
+    client.admin.command('ping')
+    db = client.it_helpdesk
+    users = db.users
+    tickets = db.tickets
+except Exception as e:
+    print("\n*** MongoDB connection error: ", e, "\n")
+    raise SystemExit("Could not connect to MongoDB. Please check your MONGO_URI, network, and Atlas cluster settings.")
+
 @app.before_request
 def before_request():
     g.pending_count = 0
     if 'username' in session and session.get('role') == 'admin':
         g.pending_count = users.count_documents({"role": "user", "status": "pending"})
+
+# ...existing code...
+
+
+# ...existing code...
 
 # Admin: View and manage pending user requests
 @app.route('/admin/requests', methods=['GET', 'POST'])
@@ -23,21 +48,7 @@ def user_requests():
         return redirect(url_for('user_requests'))
     pending_users = list(users.find({"role": "user", "status": "pending"}))
     return render_template('user_requests.html', pending_users=pending_users)
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from pymongo import MongoClient
-from dotenv import load_dotenv
-import os
-import bcrypt
-from datetime import datetime
 
-load_dotenv()
-
-app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client.it_helpdesk
-users = db.users
-tickets = db.tickets
 
 # Ensure admin exists (run once or improve with setup route)
 admin_user = users.find_one({"username": "admin"})

@@ -1,31 +1,42 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
-    <h2>Register</h2>
-    <form method="POST">
-        <div>
-          <label for="username">Username:</label>
-          <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-          <label for="password">Password:</label>
-          <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-          <label for="pc_name">PC Name:</label>
-          <input type="text" id="pc_name" name="pc_name" required>
-        </div>
-        <button type="submit">Register</button>
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+  <div class="card shadow-lg p-4" style="min-width:350px; max-width:400px; width:100%;">
+    <div class="text-center mb-3">
+      <img src="https://i.ytimg.com/vi/VayjLIlCLpw/maxresdefault.jpg" alt="Logo" style="height:60px;width:60px;border-radius:50%;object-fit:cover;">
+      <h2 class="mt-2 mb-0" style="font-weight:700; letter-spacing:1px;">Register</h2>
+      <p class="text-muted mb-0">Create your IT Helpdesk account</p>
+    </div>
+    <form method="POST" autocomplete="off">
+      <div class="mb-3 input-group">
+        <span class="input-group-text bg-secondary text-white"><i class="bi bi-person"></i></span>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+      </div>
+      <div class="mb-3 input-group">
+        <span class="input-group-text bg-secondary text-white"><i class="bi bi-lock"></i></span>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+      </div>
+      <div class="mb-3 input-group">
+        <span class="input-group-text bg-secondary text-white"><i class="bi bi-pc"></i></span>
+        <input type="text" id="pc_name" name="pc_name" class="form-control" placeholder="PC Name" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 fw-bold">Register</button>
     </form>
-    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a>.</p>
+    <div class="text-center mt-3">
+      <small>Already have an account? <a href="{{ url_for('login') }}">Login here</a>.</small>
+    </div>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
+        <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+          {% for message in messages %}
+            <div>{{ message }}</div>
+          {% endfor %}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
       {% endif %}
     {% endwith %}
+  </div>
 </div>
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {% endblock %}
