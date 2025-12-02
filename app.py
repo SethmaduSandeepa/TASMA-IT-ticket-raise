@@ -1,3 +1,28 @@
+from flask import g
+# Add before_request to set pending_count for admin
+@app.before_request
+def before_request():
+    g.pending_count = 0
+    if 'username' in session and session.get('role') == 'admin':
+        g.pending_count = users.count_documents({"role": "user", "status": "pending"})
+
+# Admin: View and manage pending user requests
+@app.route('/admin/requests', methods=['GET', 'POST'])
+def user_requests():
+    if 'username' not in session or session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        action = request.form.get('action')
+        user_id = request.form.get('user_id')
+        if action == 'accept':
+            users.update_one({"_id": ObjectId(user_id)}, {"$set": {"status": "active"}})
+            flash("User accepted.")
+        elif action == 'delete':
+            users.delete_one({"_id": ObjectId(user_id)})
+            flash("User deleted.")
+        return redirect(url_for('user_requests'))
+    pending_users = list(users.find({"role": "user", "status": "pending"}))
+    return render_template('user_requests.html', pending_users=pending_users)
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -48,9 +73,10 @@ def register():
             "username": username,
             "password": hashed,
             "role": "user",
-            "pc_name": pc_name
+            "pc_name": pc_name,
+            "status": "pending"
         })
-        flash("Registration successful. Please log in.")
+        flash("Registration request sent. Please wait for admin approval.")
         return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -61,6 +87,9 @@ def login():
         password = request.form['password']
         user = users.find_one({"username": username})
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            if user.get('status', 'active') != 'active':
+                flash("Your account is not yet approved by admin.")
+                return render_template('login.html')
             session['username'] = user['username']
             session['role'] = user['role']
             return redirect(url_for('index'))

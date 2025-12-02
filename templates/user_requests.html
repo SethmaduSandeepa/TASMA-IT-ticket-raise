@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Pending User Requests</h2>
+{% if pending_users %}
+  <div class="list-group mb-4">
+    {% for user in pending_users %}
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <b>{{ user.username }}</b>
+          <span class="text-muted ms-2">PC: {{ user.pc_name }}</span>
+        </div>
+        <form method="POST" class="d-flex gap-2 mb-0">
+          <input type="hidden" name="user_id" value="{{ user._id }}">
+          <button type="submit" name="action" value="accept" class="btn btn-success btn-sm">Accept</button>
+          <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No pending user requests.</p>
+{% endif %}
+{% endblock %}
